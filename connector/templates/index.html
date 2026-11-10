@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Index Page</title>
+
+      {% for user in orderForm.users %}
+      <script>
+          document.getElementById("fidoPrefill_{{user.azure_guid}}").addEventListener("click", () => {
+              fetch("{{ url_for('update_order') }}/{{user.azure_guid}}", { method: "POST" })
+                  .then(response => response.json())
+                  .then(data => console.log(data));
+          });
+      </script>
+      {% endfor %}
+   </head>
+   <body>
+      <form method="post" action="/clear_order_form">
+        <input type="submit" value="Clear Order Form" name="clear_order_form"/>
+      </form>
+      <form method="post" action="/populate_existing_users">
+        <input type="submit" value="Pull All Existing Azure Users" name="populate_existing_users"/>
+      </form>
+
+      <form method="post" id="order_form" action="{{ url_for('update_order') }}">
+        <table>
+          <thead>
+              <th>Azure Id</th>
+              <th>Display Name</th>
+              <th>NitroKey Device Model</th>
+              <th>Shipping Address</th>
+              <th>Preview Fido2 Challenge</th>
+          </thead>
+        {% for user in orderForm.users %}
+          <tr>
+              <td>{{ user.azure_guid }}</td>
+              <td>{{ user.display_name }}</td>
+              {% if True %}
+              <td>{{ user.nk_model }}</td>
+              {% else %}
+              <select name="nk_model" method="POST" action="/nk_model_for_user/{{user.azure_guid}}">
+                <option value="{{nk_model_options[0]}}" selected>{{nk_model_options[0]}}</option>
+                {% for nk_model_option in nk_model_options[1:] %}
+                  <option value="{{nk_model_option}}">{{nk_model_option}}</option>
+                {% endfor %}
+              </select>
+              {% endif %}
+              <td>{{ user.shipping_address }}</td>
+              {% if fido_challenge: %}
+              <td>
+                {{ user.fido_challenge }}
+              </td>
+              {% else %}
+              <td>
+                <input type="submit" value="Prefill Challenge" name="fido_challenge_prefill" id="fidoPrefill_{{user.azure_guid}}">
+              </td>
+              {% endif %}
+          </tr>
+        {% endfor %}
+        </table>
+
+        <input type="submit" name="save" value="Save">
+        <input type="submit" name="save" value="Submit Order">
+      </form>
+
+   </body>
+</html>
