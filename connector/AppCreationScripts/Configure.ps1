@@ -121,7 +121,7 @@ Function ConfigureApplications {
     # add the user running the script as an app owner if needed
     $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
     if ($null -eq $owner) { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId" }
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/"+$user.ObjectId }
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($webAppServicePrincipal.DisplayName)'"
     }
     Write-Host "Done creating the webApp application (WebApp)"
